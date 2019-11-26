@@ -25,7 +25,6 @@ def get_all_players():
     np.savetxt('docs/player_ids.txt', all_player_ids, fmt='%d')
 
 if __name__ == '__main__':
-    # 
     parser = argparse.ArgumentParser()
     parser.add_argument("--legends_path", type=str, default='docs/legends.txt', help="path to NBA legends file")
     opt = parser.parse_args()
