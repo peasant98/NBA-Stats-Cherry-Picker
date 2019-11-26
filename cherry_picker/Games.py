@@ -6,10 +6,10 @@ import pandas as pd
 
 from nba_api.stats.endpoints import playergamelog
 from nba_api.stats.endpoints import playercareerstats
-from nba_api.stats.static import players
-from multiprocessing import Process, Value, Array
+from nba_api.stats.endpoints import playerdashboardbyyearoveryear
 
-# get some data from the players' games
+from nba_api.stats.static import players
+from multiprocessing import Process, Value, Array, Manager
 
 # games log endpoint from stats.nba.com
 
@@ -17,8 +17,45 @@ from multiprocessing import Process, Value, Array
 
 class PlayerSeasons():
     def __init__(self, no_hall_of_fame, hall_of_fame):
-        # two np arrays, non legends, and legens, as previously specified by user.
-        pass
+        # two np arrays, non legends, and legends, as previously specified by user.
+        # go through each array of ids, needs to be sparse, use dictionary instead
+        non_legend_len = len(no_hall_of_fame)
+        legend_len = len(hall_of_fame)
+        # break  up into chunks
+        v1 = int(non_legend_len / 15) + 1
+        v2 = int(legend_len / 15) + 1
+        split_non_legend_ids = np.array_split(no_hall_of_fame, v1)
+        split_legend_ids = np.array_split(hall_of_fame, v2)
+
+        manager = Manager()
+        non_legends_dict = manager.dict()
+        legends_dict = manager.dict()
+        self.players_process(split_non_legend_ids, non_legends_dict)
+        self.players_process(split_legend_ids, legends_dict)
+        self.non_legends_dict = non_legends_dict
+        self.legends_dict = legends_dict
+        print(legends_dict)
+        print(non_legends_dict)
+        # set what happens to legends_dict after!
+
+    def get_season(self, player_id, dictionary):
+        career = playercareerstats.PlayerCareerStats(player_id=player_id)
+        arr = career.get_data_frames()[0]['SEASON_ID'].values
+        print(f'{player_id} processed.')
+        player_dict = {player_id: arr}
+        dictionary.update(player_dict)
+
+    def players_process(self, arr, dictionary):
+        for split in arr:
+            jobs = []
+            for player_id in split:
+                # get important stats from each year
+                p = Process(target=self.get_season, args=(player_id, dictionary))
+                jobs.append(p)
+                p.start()
+            for j in jobs:
+                j.join()
+
 
 class PlayerGameLogs():
     def __init__(self, file_path, legends_file_path):
@@ -29,8 +66,10 @@ class PlayerGameLogs():
 
         non_legends = np.array(list(set(all_players) - set(all_legends)))
         # get all seasons
+        ps = PlayerSeasons(non_legends, all_legends)
 
 
+m = PlayerGameLogs('docs/player_ids.txt', 'docs/legend_ids.txt')
 
 
 
