@@ -19,8 +19,6 @@ def f(d, d1, l):
     d.update(player1_dict)
     d.update(player2_dict)
 
-
-
 if __name__ == '__main__':
     manager = Manager()
 
