@@ -51,6 +51,7 @@ class PlayerSeasons():
         career = playercareerstats.PlayerCareerStats(player_id=player_id)
         arr = list(career.get_data_frames()[0]['SEASON_ID'].values)
         name = players.find_player_by_id(player_id)['full_name']
+        # print the name, because who cares about id?
         print(f'{name} processed.')
         player_dict = {player_id: arr}
         dictionary.update(player_dict)
@@ -110,21 +111,40 @@ class PlayerGameLog():
         # given all of the seasons, find all of the years
         # two dictionaries
         # non-legends passthrough
-        for p_id in nl:
-            for year in nl[p_id]:
-                pass
-            # each player: go through all of the seasons, make requests there,
-            # throw into file, every game ever from every player
-        # legends passthrough
-        for p_id in l:
+        m = 4481 * 82
+        n = 20
+        manager = Manager()
+        nl_games_dict = manager.dict()
+        l_games_dict = manager.dict()
+        self.player_process(nl, nl_games_dict)
+        self.player_process(l, l_games_dict)
+
+        # since previous is blocking, add to csv file here to prevent mem error
+        
+        # each player: go through all of the seasons, make requests there,
+        # throw into file, every game ever from every player
+        
+        # store key stats from each game in list?
+
+    def player_process(self, seasons_dict, season_stats_dict):
+        for p_id in seasons_dict:
             # create multiprocesses here
             jobs = []
-            for year in l[p_id]:
-                pass
-                # store key stats from each game in list?
-    
-    def get_every_game_season(self, player_id, year):
-        pass
+            for year in seasons_dict[p_id]:
+                p = Process(target=self.get_every_game_season, args=(p_id, year, season_stats_dict))
+                jobs.append(p)
+                p.start()
+            for j in jobs:
+                j.join()
+
+    def get_every_game_season(self, player_id, year, season_stats_dict):
+        player_season = playergamelog.PlayerGameLog(player_id, season=year)
+        if player_season.player_game_log['data'] != []:
+            pass
+            # played some games
+            # format [[x1...], [x2...]...[xn...]]
+
+        # get important stats
 
 v = PlayerSeasonCSVCreator('non_legends_dict.csv', 'legends_dict.csv', True)
 # v.l - legends' seasons
