@@ -111,11 +111,13 @@ class PlayerGameLog():
         # given all of the seasons, find all of the years
         # two dictionaries
         # non-legends passthrough
-        m = 4481 * 82
-        n = 20
+        # max rows is 82 games * 22 seasons 
+        m = 82 * 22
+        n = 22 # indices 3 to 25
         manager = Manager()
         nl_games_dict = manager.dict()
         l_games_dict = manager.dict()
+        arr = Array('d', m*n)
         self.player_process(nl, nl_games_dict)
         self.player_process(l, l_games_dict)
 
@@ -126,23 +128,49 @@ class PlayerGameLog():
         
         # store key stats from each game in list?
 
-    def player_process(self, seasons_dict, season_stats_dict):
-        for p_id in seasons_dict:
-            # create multiprocesses here
-            jobs = []
-            for year in seasons_dict[p_id]:
-                p = Process(target=self.get_every_game_season, args=(p_id, year, season_stats_dict))
+    def player_process(self, seasons_dict, season_games_dict):
+        
+        player_keys = np.array(list(seasons_dict.keys()))
+        v1 = int(len(player_keys) / 4) + 1
+        split_players = np.array_split(player_keys, v1)
+
+        for split in split_players:
+            # each group of player ids
+            for p_id in split:
+                # create some jobs
+                jobs = []
+                # new process for ALL of players' seasons
+                season_games_dict[p_id] = []
+                p = Process(target=self.get_every_game_season, args=(p_id, seasons_dict, season_games_dict))
+                season_amt = len(seasons_dict[p_id])
                 jobs.append(p)
                 p.start()
             for j in jobs:
                 j.join()
+            # multiple processes are spawned in the context of one player with multiple seasons.
 
-    def get_every_game_season(self, player_id, year, season_stats_dict):
-        player_season = playergamelog.PlayerGameLog(player_id, season=year)
-        if player_season.player_game_log['data'] != []:
-            pass
-            # played some games
-            # format [[x1...], [x2...]...[xn...]]
+    def get_every_game_season(self, player_id, season_dict, season_games_dict):
+        # go through every season for a player, get all of the games
+        # each year
+        res = []
+        for year in season_dict[player_id]:
+            player_season = playergamelog.PlayerGameLog(player_id, season=year)
+            # lock temporary array
+            # make it two-dimensional
+            if player_season.player_game_log['data'] != []:
+                # played some time
+                # all games in a season
+                for game in player_season.player_game_log['data']:
+                    temp = []   
+                    for i in range(3,26):
+                        temp.append(game[i])
+                    res.append(temp)
+            else:
+                season_games_dict[player_id] = []
+        player_dict = {player_id: res}
+        season_games_dict.update(player_dict)
+        # played some games
+        # format [[x1...], [x2...]...[xn...]]
 
         # get important stats
 
