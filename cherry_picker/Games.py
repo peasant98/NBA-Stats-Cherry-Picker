@@ -48,6 +48,7 @@ class PlayerSeasons():
                 writer.writerow([key, value])
 
     def get_season(self, player_id, dictionary):
+        # get the seasons that player_id played
         career = playercareerstats.PlayerCareerStats(player_id=player_id)
         arr = list(career.get_data_frames()[0]['SEASON_ID'].values)
         name = players.find_player_by_id(player_id)['full_name']
@@ -67,7 +68,7 @@ class PlayerSeasons():
             for j in jobs:
                 j.join()
 
-
+# csv creator class depending on if the ids 
 class PlayerSeasonCSVCreator():
     def __init__(self, file_path, legends_file_path, is_csv_loaded):
         if not is_csv_loaded:
