@@ -25,5 +25,3 @@ def get_random_player(file_name):
         f'had {game[17]} steal{need_s(game[17])}, and had {game[18]} block{need_s(game[18])}.'
     print(x)
     return player, arr
-    
-get_random_player('legend_players.csv')

@@ -29,14 +29,9 @@ if __name__ == '__main__':
     parser.add_argument("--legends_path", type=str, default='docs/legends.txt', help="path to NBA legends file")
     opt = parser.parse_args()
     file_path = opt.legends_path
+    # get all of the ids and put in text files
     get_legends(file_path)
     get_all_players()
     all_players = players.get_players()
-
-    # possibly useful function:
-    # players.find_player_by_id(<id>)
-
-    # player_info = commonplayerinfo.CommonPlayerInfo(player_id=2544)
-    # get the ids of the legends
-
+    # game = ()
     

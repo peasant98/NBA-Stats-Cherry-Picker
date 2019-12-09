@@ -39,7 +39,7 @@ def subset_iter(subset, df, player_game_dict):
                 x = x & (df[stat_name] >= player_game_dict[stat_name])
     return x
 
-def n_games_inputter(player_games_vec, games_info, file_name):
+def n_games_inputter(player_games_vec, games_info, name, file_name):
     # player_games_vec is n x 6 matrix
     # index by n
     if len(np.array(player_games_vec)) == 1:
@@ -56,12 +56,13 @@ def n_games_inputter(player_games_vec, games_info, file_name):
     df = pd.read_csv(file_name)
     if n == 1:
         # only 1 game
-        inputter(df, player_game_dict, games_info)
+        inputter(df, player_game_dict, games_info, name)
         return
     # worry about 1 game here??
     player_careers = df.groupby('ID')
     for subset in STATS_POWER_SET:
         # each subset, get the slice of game
+        amt = 0
         for m in player_careers:
             # m[1] is the dataframe associated with the player
             player_df = m[1]
@@ -70,12 +71,63 @@ def n_games_inputter(player_games_vec, games_info, file_name):
                 n_games_df = g[1]
                 x = subset_iter(subset, n_games_df, player_game_dict)
                 if len(n_games_df.loc[x]) == n:
-                    print(subset)
-                    print(n_games_df.loc[x])
-            name = player_df['Name'].values[0]
-            print(f'{name} processed.')
- 
-def inputter(df, player_game_dict, game_info):
+                    amt+=1
+                    best_name = n_games_df.loc[x]['Name'].values[0]
+                    best_date = n_games_df.loc[x]['Date'].values[0]
+        if amt == 0:
+            res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
+                                    player_game_dict['REB'], player_game_dict['STL'],
+                                    player_game_dict['BLK'], player_game_dict['TOV'])
+            print(f'{name} is the first player EVER {res} in {n} straight games.')
+        elif amt == 1:
+
+            res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
+                                    player_game_dict['REB'], player_game_dict['STL'],
+                                    player_game_dict['BLK'], player_game_dict['TOV'])
+            print(f'{name} is the first player since {best_name} on {best_date} {res} in {n} straight games.')
+            # name = player_df['Name'].values[0]
+            # print(f'{name} processed.')
+
+def construct_string(subset: list, p, a, r, s, b, t):
+    str_arr = np.zeros(6).astype(str)
+    str_arr[0] = f'to score at least {p} points' if 'PTS' in subset else ''
+    str_arr[1] = f'to dish out at least {a} assists' if 'AST' in subset else ''
+    str_arr[2] = f'to snag at least {r} rebounds' if 'REB' in subset else ''
+    str_arr[3] = f'to have at least {s} steals' if 'STL' in subset else ''
+    str_arr[4] = f'to register at least {b} blocks' if 'BLK' in subset else ''
+    str_arr[5] = f'to have at most {t} turnovers' if 'TOV' in subset else ''
+    if len(subset) == 1:
+        res = ''
+        for s in str_arr:
+            res += s
+        return res
+    elif len(subset) == 2:
+        res = ''
+        cnt = 0
+        for s in str_arr:
+            if s != '':
+                if cnt==1:
+                    res+=('and ' + s)
+                    return res
+                else:
+                    res+=(s + ' ')
+                    cnt+=1
+    else:
+        res = ''
+        cnt = 0
+        for s in str_arr:
+            if s != '':
+                if cnt==len(subset)-1:
+                    res+=('and ' + s)
+                    return res
+                else:
+                    res+=(s + ', ')
+                    cnt+=1
+
+    # return 
+
+
+def inputter(df, player_game_dict, game_info, name):
     # given a players stats vector
     # consists of pts, ast, reb, stl
     # try combinations of different entries
@@ -83,12 +135,24 @@ def inputter(df, player_game_dict, game_info):
     
     for subset in STATS_POWER_SET:
         x = subset_iter(subset, df, player_game_dict)
-        print(subset)
-        print(f'{len(df.loc[x])} games found.')
-        print(df.loc[x])
+        game_amt = len(df.loc[x])
+        if game_amt == 1:
+            res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
+                                    player_game_dict['REB'], player_game_dict['STL'],
+                                    player_game_dict['BLK'], player_game_dict['TOV'])
+            other_name = df.loc[x]['Name'].values[0]
+            res_string = f'{name} in {game_info} is the first player since ' \
+                        f'{other_name} {res}.'
+            print(res_string)
+        elif game_amt == 0:
+            res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
+                                    player_game_dict['REB'], player_game_dict['STL'],
+                                    player_game_dict['BLK'], player_game_dict['TOV'])
+            print(f'{name} in {game_info} is the first player EVER {res}.')
+            
 
 game = np.array([[50,6,7,4,1,1]])
-n_games_inputter(game, 'Game', 'filtered_legends.csv')
+n_games_inputter(game, 'LAL vs MIN, DEC 09 2019', 'Anthony Davis', 'filtered_legends.csv')
 # arr = np.array([[39, 2, 9, 2, 3, 1], [50, 6, 7, 4, 1, 1]])
 # n_games_inputter(arr, 'Game', 'filtered_legends.csv')
 # n_games_inputter(arr, 'Game', 'filtered_players.csv')
