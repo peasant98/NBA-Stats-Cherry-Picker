@@ -30,5 +30,5 @@ def get_filtered_player_df(file_name, is_legends=False):
     # save this df too, for later bookkeeping
     filtered_player_df.to_csv('filtered_legends.csv') if is_legends else filtered_player_df.to_csv('filtered_players.csv')
 
-# get th
-get_filtered_player_df('all_players.csv', False)
+# get the players
+get_filtered_player_df('all_players.csv', False) 
