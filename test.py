@@ -1,4 +1,4 @@
-# from nba_api.stats.endpoints import commonplayerinfo
+# just some fun practice with multiprocessing
 from multiprocessing import Process, Manager
 
 def f(d, d1, l):

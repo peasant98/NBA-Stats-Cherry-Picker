@@ -1,7 +1,6 @@
 # allow user to input a player's data, and compare that to the history of all nba players
 import numpy as np
 import pandas as pd
-import time
 
 STATS_POWER_SET = [['PTS'],['AST'],['REB'],['STL'],['TOV'],['BLK'],['PTS','AST'],
 ['PTS','REB'],['PTS','STL'],['PTS','TOV'],['PTS','BLK'],['AST','REB'],['AST','STL'],
@@ -22,6 +21,23 @@ STATS_POWER_SET = [['PTS'],['AST'],['REB'],['STL'],['TOV'],['BLK'],['PTS','AST']
 
 
 
+def subset_iter(subset, df, player_game_dict):
+    init = False
+    x = None
+    for i in range(len(subset)):
+        stat_name = subset[i]
+        if not init:
+            if stat_name == 'TOV':
+                x = (df[stat_name] <= player_game_dict[stat_name])
+            else:
+                x = (df[stat_name] >= player_game_dict[stat_name])
+            init = True
+        else:
+            if stat_name == 'TOV':
+                x = x & (df[stat_name] <= player_game_dict[stat_name])
+            else:
+                x = x & (df[stat_name] >= player_game_dict[stat_name])
+    return x
 
 def n_games_inputter(player_games_vec, games_info, file_name):
     # player_games_vec is n x 6 matrix
@@ -34,10 +50,15 @@ def n_games_inputter(player_games_vec, games_info, file_name):
         game_thresh_arr[i] = min(player_games_vec[::,i])
     # 
     player_game_dict = {'PTS': game_thresh_arr[0], 'AST': game_thresh_arr[1],
-                        'REB': game_thresh_arr[2], 'BLK': game_thresh_arr[3],
-                        'STL': game_thresh_arr[4], 'TOV': game_thresh_arr[5] }
+                        'REB': game_thresh_arr[2], 'STL': game_thresh_arr[3],
+                        'BLK': game_thresh_arr[4], 'TOV': game_thresh_arr[5] }
 
     df = pd.read_csv(file_name)
+    if n == 1:
+        # only 1 game
+        inputter(df, player_game_dict, games_info)
+        return
+    # worry about 1 game here??
     player_careers = df.groupby('ID')
     for subset in STATS_POWER_SET:
         # each subset, get the slice of game
@@ -47,74 +68,28 @@ def n_games_inputter(player_games_vec, games_info, file_name):
             for g in player_df.groupby(player_df.index // n):
                 # every n games of player's career
                 n_games_df = g[1]
-                init = False
-                x = None
-                for i in range(len(subset)):
-                    stat_name = subset[i]
-                    if not init:
-                        if stat_name == 'TOV':
-                            x = (n_games_df[stat_name] <= player_game_dict[stat_name])
-                        else:
-                            x = (n_games_df[stat_name] >= player_game_dict[stat_name])
-                        init = True
-                    else:
-                        if stat_name == 'TOV':
-                            x = x & (n_games_df[stat_name] <= player_game_dict[stat_name])
-                        else:
-                            x = x & (n_games_df[stat_name] >= player_game_dict[stat_name])
-                
+                x = subset_iter(subset, n_games_df, player_game_dict)
                 if len(n_games_df.loc[x]) == n:
                     print(subset)
                     print(n_games_df.loc[x])
             name = player_df['Name'].values[0]
             print(f'{name} processed.')
  
-def inputter(player_game_vec, game_info, file_name):
+def inputter(df, player_game_dict, game_info):
     # given a players stats vector
     # consists of pts, ast, reb, stl
-    player_game_dict = {'PTS': player_game_vec[0], 'AST': player_game_vec[1],
-                        'REB': player_game_vec[2], 'BLK': player_game_vec[3],
-                        'STL': player_game_vec[4], 'TOV': player_game_vec[5] }
-    df = pd.read_csv(file_name)
     # try combinations of different entries
     # look throught the powerset for interesting values
     
     for subset in STATS_POWER_SET:
-        init = False
-        x = None
-        for i in range(len(subset)):
-            stat_name = subset[i]
-            if not init:
-                if stat_name == 'TOV':
-                    x = (df[stat_name] <= player_game_dict[stat_name])
-                else:
-                    x = (df[stat_name] >= player_game_dict[stat_name])
-                init = True
-            else:
-                if stat_name == 'TOV':
-                    x = x & (df[stat_name] <= player_game_dict[stat_name])
-                else:
-                    x = x & (df[stat_name] >= player_game_dict[stat_name])
+        x = subset_iter(subset, df, player_game_dict)
         print(subset)
         print(f'{len(df.loc[x])} games found.')
         print(df.loc[x])
-    # entries = df[df['PTS'] > player_vec[0]]
-    # calculate if there is any way we can make the player look good.
-    # go through dataframe, apply filters to find if player is THAT good
 
-def read_all_players_csv(file_name, is_legend=False):
-    df = pd.read_csv(file_name)
-    print(df[['PTS', 'AST']])
-    x = (df['PTS'] > 20) &  (df['AST'] >= 10) & (df['REB'] >= 10)
-    print(df.loc[x])
-    print(STATS_POWER_SET)
-
-    # medataframe of players every game
-
-# read_all_players_csv('filtered_players.csv'
-game = [27,7,7,1,2,3]
-inputter(game, 'Game', 'filtered_legends.csv')
-# arr = np.array([[27, 7, 7, 2, 5, 1], [27, 7, 7, 2, 5, 2], [27, 7, 7, 2, 5, 2]])
+game = np.array([[50,6,7,4,1,1]])
+n_games_inputter(game, 'Game', 'filtered_legends.csv')
+# arr = np.array([[39, 2, 9, 2, 3, 1], [50, 6, 7, 4, 1, 1]])
 # n_games_inputter(arr, 'Game', 'filtered_legends.csv')
 # n_games_inputter(arr, 'Game', 'filtered_players.csv')
 
