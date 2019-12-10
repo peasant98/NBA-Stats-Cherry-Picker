@@ -38,7 +38,8 @@ if __name__ == '__main__':
         get_legends(file_path)
         # player_ids.txtu
         get_all_players()
-    data_engine.create_data(True, True)
+    data_engine.create_data(is_seasons_created=True, is_gamelogs_created=True,
+                            include_legends_with_players=True, is_analysis_df_created=True)
     game = np.array([[35,9,15,2,1,2]])
     data_engine.run_analysis(game, 'LAL vs. MIN, DEC 08 2019', 'Anthony Davis',
                                 'filtered_players.csv', 'filtered_legends.csv')

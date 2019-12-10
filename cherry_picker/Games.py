@@ -70,7 +70,7 @@ class PlayerSeasons():
 # csv creator class depending on if the csv is already loaded on the computer
 # serves to grab all of the seasons that players played in
 class PlayerSeasonCSVCreator():
-    def __init__(self, file_path, legends_file_path, is_csv_loaded):
+    def __init__(self, file_path, legends_file_path, is_csv_loaded, include_legends_with_players=False):
         '''
         file_path need to be the txt file if not loaded, otherwise needs to 
         be csv file. Same for legends_file_path.
@@ -80,8 +80,9 @@ class PlayerSeasonCSVCreator():
             # legends in separate arrays
             all_players = np.loadtxt(file_path, dtype=int)
             all_legends = np.loadtxt(legends_file_path, dtype=int)
-
-            non_legends = np.array(list(set(all_players) - set(all_legends)))
+            non_legends = all_players
+            if not include_legends_with_players:
+                non_legends = np.array(list(set(all_players) - set(all_legends)))
             # get all seasons from players
             ps = PlayerSeasons(non_legends, all_legends)
             # corresponding dictionares for normal players and legends
