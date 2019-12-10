@@ -3,9 +3,11 @@
 
 import numpy as np
 import argparse
+import os.path
 
 from nba_api.stats.endpoints import commonplayerinfo
 from nba_api.stats.static import players
+import data_engine
     
 def get_id(val):
     return val['id']
@@ -25,13 +27,20 @@ def get_all_players():
     np.savetxt('docs/player_ids.txt', all_player_ids, fmt='%d')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--legends_path", type=str, default='docs/legends.txt', help="path to NBA legends file")
-    opt = parser.parse_args()
-    file_path = opt.legends_path
-    # get all of the ids and put in text files
-    get_legends(file_path)
-    get_all_players()
-    all_players = players.get_players()
-    # game = ()
+    if not (os.path.isfile('docs/player_ids.txt') and os.path.isfile('docs/legend_ids.txt')):
     
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--legends_path", type=str, default='docs/legends.txt', help="path to NBA legends file")
+        opt = parser.parse_args()
+        file_path = opt.legends_path
+        # get all of the ids and put in text files
+        # legend_ids.txt
+        get_legends(file_path)
+        # player_ids.txtu
+        get_all_players()
+    data_engine.create_data(True, True)
+    game = np.array([[35,9,15,2,1,2]])
+    data_engine.run_analysis(game, 'LAL vs. MIN, DEC 08 2019', 'Anthony Davis',
+                                'filtered_players.csv', 'filtered_legends.csv')
+    # data time
+        

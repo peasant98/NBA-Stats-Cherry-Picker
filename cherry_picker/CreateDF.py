@@ -7,6 +7,7 @@ import sys
 from nba_api.stats.static import players
 
 # the work for getting the dataframe of vectors from the dataframe.
+# take the massive csvs
 def get_filtered_player_df(file_name, is_legends=False):
     csv.field_size_limit(sys.maxsize)
     res = pd.read_csv(file_name, header=None)
@@ -27,8 +28,4 @@ def get_filtered_player_df(file_name, is_legends=False):
     filtered_player_df = pd.DataFrame(all_games, columns=['Name', 'ID', 'Date', 'Team', 
                                                         'PTS', 'AST', 'REB', 'STL', 'BLK',
                                                         'TOV'])
-    # save this df too, for later bookkeeping
     filtered_player_df.to_csv('filtered_legends.csv') if is_legends else filtered_player_df.to_csv('filtered_players.csv')
-
-# get the players
-get_filtered_player_df('all_players.csv', False) 

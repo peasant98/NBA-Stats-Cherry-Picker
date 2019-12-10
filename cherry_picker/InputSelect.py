@@ -19,8 +19,6 @@ STATS_POWER_SET = [['PTS'],['AST'],['REB'],['STL'],['TOV'],['BLK'],['PTS','AST']
 ['PTS','AST','REB','TOV','BLK'],['PTS','AST','STL','TOV','BLK'],['PTS','REB','STL','TOV','BLK'],
 ['AST','REB','STL','TOV','BLK'],['PTS','AST','REB','STL','TOV','BLK'] ]
 
-
-
 def subset_iter(subset, df, player_game_dict):
     init = False
     x = None
@@ -41,9 +39,6 @@ def subset_iter(subset, df, player_game_dict):
 
 def n_games_inputter(player_games_vec, games_info, name, file_name):
     # player_games_vec is n x 6 matrix
-    # index by n
-    if len(np.array(player_games_vec)) == 1:
-        pass
     n = len(player_games_vec)
     game_thresh_arr = np.zeros(6)
     for i in range(6):
@@ -151,9 +146,7 @@ def inputter(df, player_game_dict, game_info, name):
             print(f'{name} in {game_info} is the first player EVER {res}.')
             
 
-game = np.array([[50,6,7,4,1,1]])
-n_games_inputter(game, 'LAL vs MIN, DEC 09 2019', 'Anthony Davis', 'filtered_legends.csv')
+# game = np.array([[40,11,9,4,1,1]])
+# n_games_inputter(game, 'LAL vs MIN, DEC 09 2019', 'Anthony Davis', 'filtered_legends.csv')
 # arr = np.array([[39, 2, 9, 2, 3, 1], [50, 6, 7, 4, 1, 1]])
-# n_games_inputter(arr, 'Game', 'filtered_legends.csv')
-# n_games_inputter(arr, 'Game', 'filtered_players.csv')
 

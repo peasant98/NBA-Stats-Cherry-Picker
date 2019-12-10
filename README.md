@@ -4,6 +4,8 @@
 
 With the awesome NBA Stats API!
 
+Requires Python3.7 or above.
+
 ## Data
 
 There is a dataset available (but beware, lots of missing data from the way older years) online [here](https://nba-data-bucket.s3-us-west-2.amazonaws.com/all_players.csv). This dataset contains every registered game from every player to play in the NBA.
