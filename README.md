@@ -50,3 +50,10 @@ In this case, `single_game_threshold` means that we display every cherry picked 
 Stay tuned for interesting posts on real players as the 2019-20 NBA season progresses!
 
 1. Anthony Davis in LAL vs. MIN is the first player EVER to score at least 50.0 points, to dish out at least 6.0 assists, to snag at least 7.0 rebounds, to have at least 4.0 steals, to register at least 1.0 block, and to have at most 1.0 turnover.
+
+
+## Misc
+
+If you went about the steps in usage to generate `all_players.csv` and `legend_players.csv`, run `python3.6 random_stat_generator.py` just for some random games generation!
+
+Enjoy!!!
