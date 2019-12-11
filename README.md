@@ -4,11 +4,11 @@
 
 With the awesome NBA Stats API!
 
-Requires Python3.7 or above.
+Requires `python3.6` or above, so make sure to have that.
 
 ## Data
 
-There is a dataset available (but beware, lots of missing data from the way older years) online [here](https://nba-data-bucket.s3-us-west-2.amazonaws.com/all_players.csv). This dataset contains every registered game from every player to play in the NBA.
+There is a dataset available (but beware, missing data from the way older years, such as Wilt Chamberlains's time) online [here](https://nba-data-bucket.s3-us-west-2.amazonaws.com/all_players.csv). This dataset contains every registered game from every player to play in the NBA.
 
 You can use this csv with a separate project as well, and is also recommended.
 The format is that each row is of the form
@@ -19,4 +19,5 @@ The format is that each row is of the form
         FTM, FTA, FT_PCT, OREB, DREB, REB, AST, STL, BLK, TOV,
         PF, PTS`]
 
-Sample code to work with this csv will later be posted.
+
+## Usage

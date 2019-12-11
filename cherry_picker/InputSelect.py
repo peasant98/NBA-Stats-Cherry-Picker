@@ -17,7 +17,7 @@ STATS_POWER_SET = [['PTS'],['AST'],['REB'],['STL'],['TOV'],['BLK'],['PTS','AST']
 ['AST','REB','STL','BLK'],['AST','REB','TOV','BLK'],['AST','STL','TOV','BLK'],
 ['REB','STL','TOV','BLK'],['PTS','AST','REB','STL','TOV'],['PTS','AST','REB','STL','BLK'],
 ['PTS','AST','REB','TOV','BLK'],['PTS','AST','STL','TOV','BLK'],['PTS','REB','STL','TOV','BLK'],
-['AST','REB','STL','TOV','BLK'],['PTS','AST','REB','STL','TOV','BLK'] ]
+['AST','REB','STL','TOV','BLK'],['PTS','AST','REB','STL','TOV','BLK']]
 
 def subset_iter(subset, df, player_game_dict):
     init = False
@@ -37,7 +37,7 @@ def subset_iter(subset, df, player_game_dict):
                 x = x & (df[stat_name] >= player_game_dict[stat_name])
     return x
 
-def n_games_inputter(player_games_vec, games_info, name, file_name):
+def n_games_inputter(player_games_vec, games_info, name, file_name, single_game_threshold):
     # player_games_vec is n x 6 matrix
     n = len(player_games_vec)
     game_thresh_arr = np.zeros(6)
@@ -51,7 +51,7 @@ def n_games_inputter(player_games_vec, games_info, name, file_name):
     df = pd.read_csv(file_name)
     if n == 1:
         # only 1 game
-        inputter(df, player_game_dict, games_info, name)
+        inputter(df, player_game_dict, games_info, name, single_game_threshold)
         return
     # worry about 1 game here??
     player_careers = df.groupby('ID')
@@ -74,12 +74,16 @@ def n_games_inputter(player_games_vec, games_info, name, file_name):
                                     player_game_dict['REB'], player_game_dict['STL'],
                                     player_game_dict['BLK'], player_game_dict['TOV'])
             print(f'{name} is the first player EVER {res} in {n} straight games.')
+            print('')
+
         elif amt == 1:
 
             res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
                                     player_game_dict['REB'], player_game_dict['STL'],
                                     player_game_dict['BLK'], player_game_dict['TOV'])
             print(f'{name} is the first player since {best_name} on {best_date} {res} in {n} straight games.')
+            print('')
+
             # name = player_df['Name'].values[0]
             # print(f'{name} processed.')
 
@@ -118,11 +122,27 @@ def construct_string(subset: list, p, a, r, s, b, t):
                 else:
                     res+=(s + ', ')
                     cnt+=1
-
+ 
     # return 
 
 
-def inputter(df, player_game_dict, game_info, name):
+def string_list(names_list, dates_list, games_list):
+    if len(names_list) == 1:
+        return f'{names_list[0]} on {dates_list[0]} in the game {games_list[0]}'
+    elif len(names_list) == 2:
+        return f'{names_list[0]} on {dates_list[0]} in the game {games_list[0]} and {names_list[1]} on {dates_list[1]} in the game {games_list[1]}'
+    else:
+        # more than 2 names
+        player_string = ''
+        for ind,val in enumerate(names_list):
+            if ind == len(names_list) - 1:
+                player_string += (f'and {val} on {dates_list[-1]} in the game {games_list[-1]}')
+                break
+            player_string += (val+ ' on ' + dates_list[ind] + ' in the game '+ games_list[ind] + ', ')
+        return player_string
+
+
+def inputter(df, player_game_dict, game_info, name, single_game_threshold):
     # given a players stats vector
     # consists of pts, ast, reb, stl
     # try combinations of different entries
@@ -131,19 +151,24 @@ def inputter(df, player_game_dict, game_info, name):
     for subset in STATS_POWER_SET:
         x = subset_iter(subset, df, player_game_dict)
         game_amt = len(df.loc[x])
-        if game_amt == 1:
-            res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
-                                    player_game_dict['REB'], player_game_dict['STL'],
-                                    player_game_dict['BLK'], player_game_dict['TOV'])
-            other_name = df.loc[x]['Name'].values[0]
-            res_string = f'{name} in {game_info} is the first player since ' \
-                        f'{other_name} {res}.'
-            print(res_string)
-        elif game_amt == 0:
+        if game_amt == 0:
             res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
                                     player_game_dict['REB'], player_game_dict['STL'],
                                     player_game_dict['BLK'], player_game_dict['TOV'])
             print(f'{name} in {game_info} is the first player EVER {res}.')
+            print('')
+        elif game_amt <= single_game_threshold:
+            res = construct_string(subset, player_game_dict['PTS'], player_game_dict['AST'],
+                                    player_game_dict['REB'], player_game_dict['STL'],
+                                    player_game_dict['BLK'], player_game_dict['TOV'])
+            other_names = string_list(df.loc[x]['Name'].values, df.loc[x]['Date'].values,
+                                    df.loc[x]['Team'].values)
+            res_string = f'{name} in {game_info} is the first player since ' \
+                        f'{other_names} {res}.'
+            print(res_string)
+            print('')
+
+        
             
 
 # game = np.array([[40,11,9,4,1,1]])

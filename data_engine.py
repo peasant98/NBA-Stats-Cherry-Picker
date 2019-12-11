@@ -28,14 +28,15 @@ def create_data(is_seasons_created, is_analysis_df_created=False,
         CPCreateDF.get_filtered_player_df('all_players.csv', False)
         CPCreateDF.get_filtered_player_df('legend_players.csv', True)
 
-def run_analysis(player_games_vec, games_info, name, legends_file_name, players_file_name=None):
+def run_analysis(player_games_vec, games_info, name, legends_file_name, players_file_name=None,
+                    single_game_threshold=3):
     
     print('----- Comparing to select legends -----')
     print()
-    CPInputSelect.n_games_inputter(player_games_vec, games_info, name, legends_file_name)
+    CPInputSelect.n_games_inputter(player_games_vec, games_info, name, legends_file_name, single_game_threshold)
     if players_file_name != None:
         print()
         print('----- Comparing to all players -----')
         print()
-        CPInputSelect.n_games_inputter(player_games_vec, games_info, name, players_file_name)
+        CPInputSelect.n_games_inputter(player_games_vec, games_info, name, players_file_name, single_game_threshold)
 
