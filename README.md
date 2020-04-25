@@ -21,13 +21,17 @@ There is a different dataset available (but beware, missing data from the way ol
         PF, PTS`]
 
 ## Easy Run
+```sh
+git clone https://github.com/peasant98/NBA-Stats-Cherry-Picker
+cd NBA-Stats-Cherry-Picker
 
-- `git clone https://github.com/peasant98/NBA-Stats-Cherry-Picker`
-- `cd NBA-Stats-Cherry-Picker`
-- Getting the data
-- `wget https://nba-data-bucket.s3-us-west-2.amazonaws.com/filtered_players.csv`
-- `wget https://nba-data-bucket.s3-us-west-2.amazonaws.com/filtered_legends.csv`
-- `python3.6 main.py`
+# getting the data
+
+wget https://nba-data-bucket.s3-us-west-2.amazonaws.com/filtered_players.csv
+wget https://nba-data-bucket.s3-us-west-2.amazonaws.com/filtered_legends.csv
+python3.6 main.py
+```
+
 - Follow the instructions to see what shakes loose!
 
 ## Usage
